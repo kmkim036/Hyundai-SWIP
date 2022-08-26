@@ -1,1 +1,1 @@
-# MCU-Programming
+# Hyundai Motor Group SW Intensive Program

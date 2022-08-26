@@ -1,4 +1,4 @@
-```bash
+```
 # Ex0
 hello world kmkim
 
@@ -109,4 +109,4 @@ mul(3, 5) : 15
 Result of func_ptr[0] : 8
 Result of func_ptr[1] : -2
 Result of func_ptr[2] : 15
-```
+```bash

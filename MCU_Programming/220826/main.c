@@ -25,24 +25,24 @@
  * IN THE SOFTWARE.
  *********************************************************************************************************************/
 
-//#define Ex0     // hello world
-//#define Ex1   // system timer test
-//#define Ex2   // signed & unsigned integer
-//#define Ex3   // struct 1 / 3
-//#define Ex4   // struct 2 / 3
-//#define Ex5   // struct 3 / 3
-//#define Ex6   // union 1 / 2
-//#define Ex7   // union 2 / 2
-//#define Ex8   // pointer 1 / 2
-//#define Ex9   // pointer 2 / 2
-#define Ex10  // function pointer 1 / 2
-//#define Ex11  // function pointer 2 / 2
+#define Ex0 // hello world
+// #define Ex1   // system timer test
+// #define Ex2   // signed & unsigned integer
+// #define Ex3   // struct 1 / 3
+// #define Ex4   // struct 2 / 3
+// #define Ex5   // struct 3 / 3
+// #define Ex6   // union 1 / 2
+// #define Ex7   // union 2 / 2
+// #define Ex8   // pointer 1 / 2
+// #define Ex9   // pointer 2 / 2
+// #define Ex10 // function pointer 1 / 2
+// #define Ex11  // function pointer 2 / 2
 
 #ifdef Ex0
 // hello world
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -51,22 +51,21 @@ IfxCpu_syncEvent g_cpuSyncEvent = 0;
 int core0_main(void)
 {
     IfxCpu_enableInterrupts();
-    
+
     // !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
     // Enable the watchdogs and service them periodically if it is required
     //
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
-    
+
     // Wait for CPU sync event
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
-    
+
     printf("hello world kmkim\n");
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -74,13 +73,13 @@ int core0_main(void)
 
 #ifdef Ex1
 // system timer test
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 #include <stdio.h>
 
-#define SYSTEM_TIMER_31_0   *(unsigned int *)(0xF0000000+0x10)
-#define SYSTEM_TIMER_PERIOD 10  // 100Mhz
+#define SYSTEM_TIMER_31_0 *(unsigned int*)(0xF0000000 + 0x10)
+#define SYSTEM_TIMER_PERIOD 10 // 100Mhz
 
 unsigned int systemtick[2];
 unsigned int tick_cnt;
@@ -94,9 +93,9 @@ int core0_main(void)
 
     IfxCpu_enableInterrupts();
 
-     // !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
-     // Enable the watchdogs and service them periodically if it is required
-     //
+    // !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
+    // Enable the watchdogs and service them periodically if it is required
+    //
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
 
@@ -106,11 +105,11 @@ int core0_main(void)
 
     // Delay Check
     systemtick[0] = SYSTEM_TIMER_31_0;
-    for( int i=0; i<83; i++)
-    systemtick[1] = SYSTEM_TIMER_31_0;
+    for (int i = 0; i < 83; i++)
+        systemtick[1] = SYSTEM_TIMER_31_0;
 
     // Calculate tick cnt
-    tick_cnt =systemtick[1] - systemtick[0];
+    tick_cnt = systemtick[1] - systemtick[0];
     printf("test\n");
     // Calculate delay time, cnt * 10ns
     delay_time_ns = tick_cnt * SYSTEM_TIMER_PERIOD;
@@ -118,11 +117,9 @@ int core0_main(void)
     printf("Delay is %d \n", delay_time_ns);
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
         i++;
-        if(i == 100)
-        {
+        if (i == 100) {
             i = 0;
         }
     }
@@ -133,9 +130,9 @@ int core0_main(void)
 
 #ifdef Ex2
 // signed & unsigned integer
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -171,8 +168,7 @@ int core0_main(void)
     fprintf(stdout, "Value of the unsigned integer :    %u\n", uint);
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -180,26 +176,26 @@ int core0_main(void)
 
 #ifdef Ex3
 // struct 1 / 3
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
 //declaration
-struct mydata{
+struct mydata {
     int a;
     int b;
 };
 
 //declaration & initialization
-struct mydata2{
+struct mydata2 {
     int a;
     char b;
     short c;
-}object2;
+} object2;
 
 //declaration with typedef
 typedef struct {
@@ -207,7 +203,6 @@ typedef struct {
     int a;
     short b;
 } mydata3;
-
 
 int core0_main(void)
 {
@@ -234,8 +229,7 @@ int core0_main(void)
     fprintf(stdout, "mydata3 struct size : %d\n", sizeof(object4));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -243,19 +237,19 @@ int core0_main(void)
 
 #ifdef Ex4
 // struct 2 / 3
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
-struct mydata2{
+struct mydata2 {
     int a;
     char b;
     short c;
-}object2;
+} object2;
 
 //declaration with typedef
 typedef struct {
@@ -267,7 +261,7 @@ typedef struct {
 typedef struct {
     short b;
     double d;
-}mydata4;
+} mydata4;
 
 int core0_main(void)
 {
@@ -315,8 +309,7 @@ int core0_main(void)
     fprintf(stdout, "mydata4 double address : %p\n", &(object5.d));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -324,9 +317,9 @@ int core0_main(void)
 
 #ifdef Ex5
 // struct 3 / 3
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -336,7 +329,7 @@ struct bit_field {
     unsigned int a : 1;
     unsigned int b : 3;
     unsigned int c : 7;
-}flag;
+} flag;
 
 int core0_main(void)
 {
@@ -352,17 +345,16 @@ int core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    flag.a = 1;     // 1bit (1)
-    flag.b = 15;    // 4bit (1111)
-    flag.c = 255;   // 8bit (1111 1111)
+    flag.a = 1; // 1bit (1)
+    flag.b = 15; // 4bit (1111)
+    flag.c = 255; // 8bit (1111 1111)
 
     fprintf(stdout, "flag.a : %u\n", flag.a);
-    fprintf(stdout, "flag.b : %u\n", flag.b);   // only 3bit
-    fprintf(stdout, "flag.c : %u\n", flag.c);   // only 7bit
+    fprintf(stdout, "flag.b : %u\n", flag.b); // only 3bit
+    fprintf(stdout, "flag.c : %u\n", flag.c); // only 7bit
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -370,15 +362,15 @@ int core0_main(void)
 
 #ifdef Ex6
 // union 1 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
-union Box{
+union Box {
     int a;
     short b;
     char c;
@@ -412,8 +404,7 @@ int core0_main(void)
     fprintf(stdout, "Box.c address: %p\n", &(b1.c));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -421,15 +412,15 @@ int core0_main(void)
 
 #ifdef Ex7
 // union 2 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
-union IP_addr{
+union IP_addr {
     unsigned int ipv4;
     struct {
         unsigned int addr4 : 8;
@@ -460,11 +451,10 @@ int core0_main(void)
     host.addr1 = 1;
 
     fprintf(stdout, "host ipv4 : 0x%x\n", host.ipv4); // little-endian
-    fprintf(stdout, "host ipv4 : %u.%u.%u.%u\n", host.addr4, host.addr3,host.addr2,host.addr1);
+    fprintf(stdout, "host ipv4 : %u.%u.%u.%u\n", host.addr4, host.addr3, host.addr2, host.addr1);
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -472,9 +462,9 @@ int core0_main(void)
 
 #ifdef Ex8
 // pointer 1 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -504,17 +494,16 @@ int core0_main(void)
     fprintf(stdout, "Size of long long : %d\n", sizeof(long long));
 
     fprintf(stdout, "\n===== Size of pointer data type ======\n");
-    fprintf(stdout, "Size of char * : %d\n", sizeof(char *));
-    fprintf(stdout, "Size of short * : %d\n", sizeof(short *));
-    fprintf(stdout, "Size of int * : %d\n", sizeof(int *));
-    fprintf(stdout, "Size of double * : %d\n", sizeof(double *));
-    fprintf(stdout, "Size of float * : %d\n", sizeof(float *));
-    fprintf(stdout, "Size of long * : %d\n", sizeof(long *));
-    fprintf(stdout, "Size of long long * : %d\n", sizeof(long long *));
+    fprintf(stdout, "Size of char * : %d\n", sizeof(char*));
+    fprintf(stdout, "Size of short * : %d\n", sizeof(short*));
+    fprintf(stdout, "Size of int * : %d\n", sizeof(int*));
+    fprintf(stdout, "Size of double * : %d\n", sizeof(double*));
+    fprintf(stdout, "Size of float * : %d\n", sizeof(float*));
+    fprintf(stdout, "Size of long * : %d\n", sizeof(long*));
+    fprintf(stdout, "Size of long long * : %d\n", sizeof(long long*));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -522,9 +511,9 @@ int core0_main(void)
 
 #ifdef Ex9
 // pointer 2 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -545,7 +534,7 @@ int core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
     int a = 0x12345678;
-    int *a_ptr = &a;
+    int* a_ptr = &a;
 
     fprintf(stdout, "========== Test 1 ==========\n");
     fprintf(stdout, "Address of a :                %p\n", &a);
@@ -555,10 +544,10 @@ int core0_main(void)
 
     fprintf(stdout, "\n========== Test 2 ==========\n");
     fprintf(stdout, "Data pointed by int ptr :      0x%x\n", *a_ptr);
-    fprintf(stdout, "Data pointed by short ptr :    0x%x\n", *(short *)a_ptr);
-    fprintf(stdout, "Data pointed by char ptr :     0x%x\n", *(char *)a_ptr);
+    fprintf(stdout, "Data pointed by short ptr :    0x%x\n", *(short*)a_ptr);
+    fprintf(stdout, "Data pointed by char ptr :     0x%x\n", *(char*)a_ptr);
 
-    char *ch_ptr = (char *)a_ptr;
+    char* ch_ptr = (char*)a_ptr;
 
     fprintf(stdout, "\n========== Test 3 ==========\n");
     fprintf(stdout, "data(0) : 0x%x\n", *(ch_ptr++));
@@ -567,8 +556,7 @@ int core0_main(void)
     fprintf(stdout, "data(3) : 0x%x\n", *(ch_ptr));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
@@ -576,9 +564,9 @@ int core0_main(void)
 
 #ifdef Ex10
 // function pointer 1 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -614,30 +602,32 @@ int core0_main(void)
     fprintf(stdout, "mul(3, 5) : %d\n", func(3, 5));
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
 
-int add(int num1, int num2){
+int add(int num1, int num2)
+{
     return num1 + num2;
 }
 
-int sub(int num1, int num2){
+int sub(int num1, int num2)
+{
     return num1 - num2;
 }
 
-int mul(int num1, int num2){
+int mul(int num1, int num2)
+{
     return num1 * num2;
 }
 #endif
 
 #ifdef Ex11
 // function pointer 2 / 2
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include <stdio.h>
 
@@ -661,30 +651,30 @@ int core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    int (*func_ptr[3])(int, int) = {add, sub, mul};
+    int (*func_ptr[3])(int, int) = { add, sub, mul };
 
-    for(int i=0; i<3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         fprintf(stdout, "Result of func_ptr[%d] : %d\n", i, func_ptr[i](3, 5));
     }
     printf("\n");
 
-    while(1)
-    {
+    while (1) {
     }
     return (1);
 }
 
-int add(int num1, int num2){
+int add(int num1, int num2)
+{
     return num1 + num2;
 }
 
-int sub(int num1, int num2){
+int sub(int num1, int num2)
+{
     return num1 - num2;
 }
 
-int mul(int num1, int num2){
+int mul(int num1, int num2)
+{
     return num1 * num2;
 }
 #endif
-

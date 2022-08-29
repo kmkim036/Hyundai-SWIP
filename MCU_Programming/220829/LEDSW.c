@@ -77,12 +77,10 @@ int core0_main(void)
 
     while (1) {
         if ((PORT02_IN & (1 << P0)) == 0 && (PORT02_IN & (1 << P1)) == 0) {
-            for (cycle = 0; cycle < 1000000; cycle++) {
-                if ((PORT02_IN & (1 << P0)) == 0 && (PORT02_IN & (1 << P1)) == 0)
-                    mode3 = 1;
-                else
+            mode3 = 1;
+            for (cycle = 0; cycle < 1000000; cycle++)
+                if ((PORT02_IN & (1 << P0)) == 0 && (PORT02_IN & (1 << P1)) != 0)
                     mode3 = 0;
-            }
         }
 
         if ((PORT02_IN & (1 << P1)) == 0) // Switch2 is pushed
@@ -108,14 +106,12 @@ int core0_main(void)
         } else {
             if (button_input[0] && button_state[0]) {
                 PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
-                button_input[0] = 0;
                 button_state[0] = 0;
             } else if (!button_input[0]) {
                 button_state[0] = 1;
             }
             if (button_input[1] && button_state[1]) {
                 PORT10_OMR |= ((1 << PCL2) | (1 << PS2)); // Toggle LED BLUE
-                button_input[1] = 0;
                 button_state[1] = 0;
             } else if (!button_input[1]) {
                 button_state[1] = 1;

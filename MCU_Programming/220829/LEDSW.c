@@ -52,83 +52,77 @@ void init_Switch(void)
     PORT02_IOCR0 |= ((0x2) << PC0);
 }
 
-
 int core0_main(void)
 {
     IfxCpu_enableInterrupts();
-    
+
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
      * Enable the watchdogs and service them periodically if it is required
      */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
-    
+
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    init_LED();                                // Initialize LED
-    init_Switch();                             // Initialize Switch
+    init_LED(); // Initialize LED
+    init_Switch(); // Initialize Switch
 
     volatile int cycle;
 
-    int button_state[2] = {0, 0};
-    int counts[2] = {0, 0};
+    int button_state[2] = { 0, 0 };
+    int button_input[2] = { 0, 0 };
     int mode3 = 0;
-    while(1)
-    {
-        if( (PORT02_IN & (1<<P0) ) == 0 && (PORT02_IN & (1<<P1) ) == 0)
-        {
-            for (cycle = 0; cycle < 1000000; cycle++){
-                if( (PORT02_IN & (1<<P0) ) == 0 && (PORT02_IN & (1<<P1) ) == 0)
+
+    while (1) {
+        if ((PORT02_IN & (1 << P0)) == 0 && (PORT02_IN & (1 << P1)) == 0) {
+            for (cycle = 0; cycle < 1000000; cycle++) {
+                if ((PORT02_IN & (1 << P0)) == 0 && (PORT02_IN & (1 << P1)) == 0)
                     mode3 = 1;
                 else
                     mode3 = 0;
             }
         }
 
-        if( (PORT02_IN & (1<<P1) ) == 0)            // Switch2 is pushed
-            counts[0] = 1;
+        if ((PORT02_IN & (1 << P1)) == 0) // Switch2 is pushed
+            button_input[0] = 1;
         else
-            counts[0] = 0;
-        if( (PORT02_IN & (1<<P0) ) == 0)            // Switch1 is pushed
-            counts[1] = 1;
-        else
-            counts[1] = 0;
+            button_input[0] = 0;
 
-        if(mode3) {
+        if ((PORT02_IN & (1 << P0)) == 0) // Switch1 is pushed
+            button_input[1] = 1;
+        else
+            button_input[1] = 0;
+
+        if (mode3) {
             mode3 = 0;
-            PORT10_OMR |= (1<<PS1);                 // LED RED on
-            PORT10_OMR |= (1<<PCL2);                // LED BLUE off
-            for (int i = 0 ; i < 4; i++)
-            {
+            PORT10_OMR |= (1 << PS1); // LED RED on
+            PORT10_OMR |= (1 << PCL2); // LED BLUE off
+            for (int i = 0; i < 4; i++) {
                 for (cycle = 0; cycle < 10000000; cycle++)
                     ; // Delay
-
                 PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
                 PORT10_OMR |= ((1 << PCL2) | (1 << PS2)); // Toggle LED BLUE
             }
+        } else {
+            if (button_input[0] && button_state[0]) {
+                PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
+                button_input[0] = 0;
+                button_state[0] = 0;
+            } else if (!button_input[0]) {
+                button_state[0] = 1;
+            }
+            if (button_input[1] && button_state[1]) {
+                PORT10_OMR |= ((1 << PCL2) | (1 << PS2)); // Toggle LED BLUE
+                button_input[1] = 0;
+                button_state[1] = 0;
+            } else if (!button_input[1]) {
+                button_state[1] = 1;
+            }
         }
-
-        else{
-        if(counts[0] && button_state[0]) {
-            PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
-            counts[0] = 0;
-            button_state[0] = 0;
-        }
-        else if (!counts[0]) {
-            button_state[0] = 1;
-        }
-        if(counts[1]  && button_state[1]) {
-            PORT10_OMR |= ((1 << PCL2) | (1 << PS2)); // Toggle LED BLUE
-            counts[1] = 0;
-            button_state[1] = 0;
-        }
-        else if (!counts[1]) {
-            button_state[1] = 1;
-        }
-       }
-        for(int i = 0; i < 500000; i++);
+        for (int i = 0; i < 500000; i++)
+            ;
     }
 
     return (1);

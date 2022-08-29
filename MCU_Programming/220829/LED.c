@@ -24,7 +24,7 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  *********************************************************************************************************************/
-#include "user_define.h"
+#include "LEDdefine.h"
 
 #define LED
 
@@ -44,28 +44,28 @@ void init_LED(void)
     PORT10_IOCR0 |= ((0x10) << PC2);
 
     // init LED RED ON
-    PORT10_OMR |= ((0<<PCL1) | (1<<PS1));
+    PORT10_OMR |= ((0 << PCL1) | (1 << PS1));
 }
 
 int core0_main(void)
 {
     IfxCpu_enableInterrupts();
-    
+
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
      * Enable the watchdogs and service them periodically if it is required
      */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
-    
+
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
-    
+
     volatile int cycle;
 
     init_LED();
 
-/*
+    /*
     unsigned int systemtick[2];
     unsigned int tick_cnt;
     unsigned int delay_time_ns;
@@ -84,16 +84,16 @@ int core0_main(void)
     printf("Delay is %d \n\n", delay_time_ns);
 */
 
-    while(1)
-    {
-//        PORT10_OMR |= ((1<<PCL1) | (1<<PS1));           // Toggle LED RED
-//        for(cycle = 0; cycle < 10000000 ; cycle++);     // Delay
+    while (1) {
+        // PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
+        // for (cycle = 0; cycle < 10000000; cycle++)
+        //     ; // Delay
 
-        for(cycle = 0; cycle < 10000000 ; cycle++);     // Delay
-        PORT10_OMR |= ((1<<PCL1) | (1<<PS1));           // Toggle LED RED
-        PORT10_OMR |= ((1<<PCL2) | (1<<PS2));           // Toggle LED BLUE
+        for (cycle = 0; cycle < 10000000; cycle++)
+            ; // Delay
 
-
+        PORT10_OMR |= ((1 << PCL1) | (1 << PS1)); // Toggle LED RED
+        PORT10_OMR |= ((1 << PCL2) | (1 << PS2)); // Toggle LED BLUE
     }
     return (1);
 }

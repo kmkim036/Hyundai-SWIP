@@ -117,17 +117,3 @@ typedef struct CCU6 {
 #define T12RS 1
 #define INPT12 10
 #define ENT12PM 7
-
-/* Define PORT10 Registers for LED */
-#define PORT10_BASE (0xF003B000)
-#define PORT10_IOCR0 (*(volatile unsigned int*)(PORT10_BASE + 0x10))
-#define PORT10_OMR (*(volatile unsigned int*)(PORT10_BASE + 0x04))
-
-#define PC0 3
-#define PC1 11
-#define PC2 19
-
-#define PCL1 17
-#define PCL2 18
-#define PS1 1
-#define PS2 2

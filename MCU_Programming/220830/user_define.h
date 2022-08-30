@@ -43,36 +43,35 @@
 #define P1 1
 
 /* Define SCU Registers for Interrupt */
-#define SCU_BASE        (0xF0036000)
-#define SCU_WDTSCON0    (*(volatile unsigned int*)(SCU_BASE + 0x0F0))
-#define SCU_EICR1       (*(volatile unsigned int*)(SCU_BASE + 0x214))
-#define SCU_IGCR0       (*(volatile unsigned int*)(SCU_BASE + 0x22C))
+#define SCU_BASE (0xF0036000)
+#define SCU_WDTSCON0 (*(volatile unsigned int*)(SCU_BASE + 0x0F0))
+#define SCU_EICR1 (*(volatile unsigned int*)(SCU_BASE + 0x214))
+#define SCU_IGCR0 (*(volatile unsigned int*)(SCU_BASE + 0x22C))
 
-#define LCK             1
-#define ENDINIT         0
+#define LCK 1
+#define ENDINIT 0
 
-#define IGP0            14
-#define INP0            12
-#define EIEN0           11
-#define LDEN0           10
-#define REN0            9
-#define FEN0            8
-#define EXIS0           4
+#define IGP0 14
+#define INP0 12
+#define EIEN0 11
+#define LDEN0 10
+#define REN0 9
+#define FEN0 8
+#define EXIS0 4
 
-#define IGP1            30
-#define INP1            28
-#define EIEN1           27
-#define LDEN1           26
-#define REN1            25
-#define FEN1            24
-#define EXIS1           20
+#define IGP1 30
+#define INP1 28
+#define EIEN1 27
+#define LDEN1 26
+#define REN1 25
+#define FEN1 24
+#define EXIS1 20
 
 /* Define SRC Registers for Interrupt */
-#define SRC_BASE        (0xF0038000)
-#define SRC_SCUERU0     (*(volatile unsigned int*)(SRC_BASE + 0xCD4))
-#define SRC_SCUERU1     (*(volatile unsigned int*)(SRC_BASE + 0xCD8))
+#define SRC_BASE (0xF0038000)
+#define SRC_SCUERU0 (*(volatile unsigned int*)(SRC_BASE + 0xCD4))
+#define SRC_SCUERU1 (*(volatile unsigned int*)(SRC_BASE + 0xCD8))
 
-#define TOS             11
-#define SRE             10
-#define SRPN            0
-
+#define TOS 11
+#define SRE 10
+#define SRPN 0

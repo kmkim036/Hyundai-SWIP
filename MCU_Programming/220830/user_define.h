@@ -45,6 +45,7 @@
 /* Define SCU Registers for Interrupt */
 #define SCU_BASE (0xF0036000)
 #define SCU_WDTSCON0 (*(volatile unsigned int*)(SCU_BASE + 0x0F0))
+#define SCU_WDT_CPU0CON0     (*(volatile unsigned int*)(SCU_BASE + 0x100))
 #define SCU_EICR1 (*(volatile unsigned int*)(SCU_BASE + 0x214))
 #define SCU_IGCR0 (*(volatile unsigned int*)(SCU_BASE + 0x22C))
 
@@ -71,6 +72,8 @@
 #define SRC_BASE (0xF0038000)
 #define SRC_SCUERU0 (*(volatile unsigned int*)(SRC_BASE + 0xCD4))
 #define SRC_SCUERU1 (*(volatile unsigned int*)(SRC_BASE + 0xCD8))
+#define SRC_CCU60_SR0        (*(volatile unsigned int*)(SRC_BASE + 0x420))
+#define SRC_CCU61_SR0        (*(volatile unsigned int*)(SRC_BASE + 0x430))
 
 #define TOS 11
 #define SRE 10

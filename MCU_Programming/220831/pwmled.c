@@ -24,18 +24,18 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  *********************************************************************************************************************/
-#include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "Ifx_Types.h"
 
 #include "user_define.h"
 
-#define DUTY100     12500
-#define DUTY75      9375
-#define DUTY50      6250
-#define DUTY25      3125
-#define DYTY12_5    1562
-#define DUTY0       0
+#define DUTY100 12500
+#define DUTY75 9375
+#define DUTY50 6250
+#define DUTY25 3125
+#define DYTY12_5 1562
+#define DUTY0 0
 
 /* Function Prototype */
 void init_LED(void);
@@ -54,34 +54,32 @@ volatile unsigned int light_sensor_duty;
 int core0_main(void)
 {
     IfxCpu_enableInterrupts();
-    
+
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
      * Enable the watchdogs and service them periodically if it is required
      */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
-    
+
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
-    
+
     init_LED();
     init_GTM_TOM0_PWM();
 
-    while(1)
-    {
-
+    while (1) {
     }
     return (1);
 }
 
 void init_LED(void)
 {
-    PORT10_IOCR0 &= ~((0x1F) << PC1);           // PORT10.1 : Alternate output function 1 (push-pull)
-    PORT10_IOCR0 |= ((0x11) << PC1);            // PORT10.1 : GTM_TOUT103
+    PORT10_IOCR0 &= ~((0x1F) << PC1); // PORT10.1 : Alternate output function 1 (push-pull)
+    PORT10_IOCR0 |= ((0x11) << PC1); // PORT10.1 : GTM_TOUT103
 
-    PORT10_IOCR0 &= ~((0x1F) << PC2);           // PORT10.2 : Alternate output function 1 (push-pull)
-    PORT10_IOCR0 |= ((0x11) << PC2);            // PORT10.2 : GTM_TOUT104
+    PORT10_IOCR0 &= ~((0x1F) << PC2); // PORT10.2 : Alternate output function 1 (push-pull)
+    PORT10_IOCR0 |= ((0x11) << PC2); // PORT10.2 : GTM_TOUT104
 }
 
 void init_GTM_TOM0_PWM(void)
@@ -89,66 +87,71 @@ void init_GTM_TOM0_PWM(void)
     /* GTM Enable */
     // Password Access to unlock WDTCPU0CON0
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) & ~(1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0)
+        ;
 
     // Modify Access to clear ENDINIT bit
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) | (1 << LCK)) & ~(1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0)
+        ;
 
-    GTM_CLC &= ~(1 << DISR);                        // Enable GTM Module
+    GTM_CLC &= ~(1 << DISR); // Enable GTM Module
 
     // Password Access to unlock WDTCPU0CON0
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) & ~(1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0)
+        ;
 
     // Modify Access to set ENDINIT bit
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) | (1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0)
+        ;
 
-    while((GTM_CLC & (1 << DISS)) != 0);            // Wait until module is enabled
+    while ((GTM_CLC & (1 << DISS)) != 0)
+        ; // Wait until module is enabled
 
     /* GTM Clock Setting */
-    GTM_CMU_FXCLK_CTRL &= ~((0xF) << FXCLK_SEL);    // Input clock of CMU_FXCLK : CMU_GCLK_EN
+    GTM_CMU_FXCLK_CTRL &= ~((0xF) << FXCLK_SEL); // Input clock of CMU_FXCLK : CMU_GCLK_EN
 
-    GTM_CMU_CLK_EN &= ~((0x3) << EN_FXCLK);         // Enable all CMU_FXCLK
+    GTM_CMU_CLK_EN &= ~((0x3) << EN_FXCLK); // Enable all CMU_FXCLK
     GTM_CMU_CLK_EN |= ((0x2) << EN_FXCLK);
 
     /* GTM TOM0 PWM Setting channel 0 ~ channel 7*/
     // channel 1
-    GTM_TOM0_TGC0_GLB_CTRL &= ~((0x3) << UPEN_CTRL1);   // TOM0 channel 1 enable update of
-    GTM_TOM0_TGC0_GLB_CTRL |= ((0x2) << UPEN_CTRL1);    // register CM0, CM1, CLK_SRC
-    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << FUPD_CTRL1);  // Enable force update of TOM0 channel 1
+    GTM_TOM0_TGC0_GLB_CTRL &= ~((0x3) << UPEN_CTRL1); // TOM0 channel 1 enable update of
+    GTM_TOM0_TGC0_GLB_CTRL |= ((0x2) << UPEN_CTRL1); // register CM0, CM1, CLK_SRC
+    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << FUPD_CTRL1); // Enable force update of TOM0 channel 1
     GTM_TOM0_TGC0_FUPD_CTRL |= ((0x2) << FUPD_CTRL1);
-    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << RSTCN0_CH1);  // Reset CN0 of TOM0 channel 1 on force update
+    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << RSTCN0_CH1); // Reset CN0 of TOM0 channel 1 on force update
     GTM_TOM0_TGC0_FUPD_CTRL |= ((0x2) << RSTCN0_CH1);
     GTM_TOM0_TGC0_ENDIS_CTRL &= ~((0x3) << ENDIS_CTRL1); // Enable channel 1 on an update trigger
     GTM_TOM0_TGC0_ENDIS_CTRL |= ((0x2) << ENDIS_CTRL1);
     GTM_TOM0_TGC0_OUTEN_CTRL &= ~((0x3) << OUTEN_CTRL1); // Enable channel 1 output on an update trigger
     GTM_TOM0_TGC0_OUTEN_CTRL |= ((0x2) << OUTEN_CTRL1);
-    GTM_TOM0_CH1_CTRL |= (1 << SL);                     // High signal level for duty cycle
-    GTM_TOM0_CH1_CTRL &= ~((0x7) << CLK_SRC_SR);        // Clock source : CMU_FXCLK(1) = 6250 kHz
+    GTM_TOM0_CH1_CTRL |= (1 << SL); // High signal level for duty cycle
+    GTM_TOM0_CH1_CTRL &= ~((0x7) << CLK_SRC_SR); // Clock source : CMU_FXCLK(1) = 6250 kHz
     GTM_TOM0_CH1_CTRL |= (1 << CLK_SRC_SR);
-    GTM_TOM0_CH1_SR0 = DUTY100 - 1;                       // PWM freq. = 6250 kHz / 12500 = 500 Hz
-    GTM_TOM0_CH1_SR1 = DYTY12_5 - 1;                       // Duty cycle = 100
-    GTM_TOUTSEL6 &= ~((0x3) << SEL7);                   // TOUT103 : TOM0 channel 1
+    GTM_TOM0_CH1_SR0 = DUTY100 - 1; // PWM freq. = 6250 kHz / 12500 = 500 Hz
+    GTM_TOM0_CH1_SR1 = DYTY12_5 - 1; // Duty cycle = 100
+    GTM_TOUTSEL6 &= ~((0x3) << SEL7); // TOUT103 : TOM0 channel 1
 
     // channel 2
-    GTM_TOM0_TGC0_GLB_CTRL &= ~((0x3) << UPEN_CTRL2);   // TOM0 channel 2 enable update of
-    GTM_TOM0_TGC0_GLB_CTRL |= ((0x2) << UPEN_CTRL2);    // register CM0, CM1, CLK_SRC
-    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << FUPD_CTRL2);  // Enable force update of TOM0 channel 2
+    GTM_TOM0_TGC0_GLB_CTRL &= ~((0x3) << UPEN_CTRL2); // TOM0 channel 2 enable update of
+    GTM_TOM0_TGC0_GLB_CTRL |= ((0x2) << UPEN_CTRL2); // register CM0, CM1, CLK_SRC
+    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << FUPD_CTRL2); // Enable force update of TOM0 channel 2
     GTM_TOM0_TGC0_FUPD_CTRL |= ((0x2) << FUPD_CTRL2);
-    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << RSTCN0_CH2);  // Reset CN0 of TOM0 channel 2 on force update
+    GTM_TOM0_TGC0_FUPD_CTRL &= ~((0x3) << RSTCN0_CH2); // Reset CN0 of TOM0 channel 2 on force update
     GTM_TOM0_TGC0_FUPD_CTRL |= ((0x2) << RSTCN0_CH2);
     GTM_TOM0_TGC0_ENDIS_CTRL &= ~((0x3) << ENDIS_CTRL2); // Enable channel 2 on an update trigger
     GTM_TOM0_TGC0_ENDIS_CTRL |= ((0x2) << ENDIS_CTRL2);
     GTM_TOM0_TGC0_OUTEN_CTRL &= ~((0x3) << OUTEN_CTRL2); // Enable channel 2 output on an update trigger
     GTM_TOM0_TGC0_OUTEN_CTRL |= ((0x2) << OUTEN_CTRL2);
-    GTM_TOM0_CH2_CTRL |= (1 << SL);                     // High signal level for duty cycle
-    GTM_TOM0_CH2_CTRL &= ~((0x7) << CLK_SRC_SR);        // Clock source : CMU_FXCLK(1) = 6250 kHz
+    GTM_TOM0_CH2_CTRL |= (1 << SL); // High signal level for duty cycle
+    GTM_TOM0_CH2_CTRL &= ~((0x7) << CLK_SRC_SR); // Clock source : CMU_FXCLK(1) = 6250 kHz
     GTM_TOM0_CH2_CTRL |= (1 << CLK_SRC_SR);
-    GTM_TOM0_CH2_SR0 = DUTY100 - 1;                       // PWM freq. = 6250 kHz / 12500 = 500 Hz
-    GTM_TOM0_CH2_SR1 = DUTY100 - 1;                       // Duty cycle = 100
-    GTM_TOUTSEL6 &= ~((0x3) << SEL8);                   // TOUT104 : TOM0 channel 2
+    GTM_TOM0_CH2_SR0 = DUTY100 - 1; // PWM freq. = 6250 kHz / 12500 = 500 Hz
+    GTM_TOM0_CH2_SR1 = DUTY100 - 1; // Duty cycle = 100
+    GTM_TOUTSEL6 &= ~((0x3) << SEL8); // TOUT104 : TOM0 channel 2
 
-    GTM_TOM0_TGC0_GLB_CTRL |= (1 << HOST_TRIG);         // Trigger request signal to update
+    GTM_TOM0_TGC0_GLB_CTRL |= (1 << HOST_TRIG); // Trigger request signal to update
 }

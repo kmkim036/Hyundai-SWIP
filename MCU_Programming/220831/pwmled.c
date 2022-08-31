@@ -35,6 +35,7 @@
 #define DUTY50 6250
 #define DUTY25 3125
 #define DYTY12_5 1562
+#define DUTY6_25 781
 #define DUTY0 0
 
 /* Function Prototype */
@@ -132,7 +133,7 @@ void init_GTM_TOM0_PWM(void)
     GTM_TOM0_CH1_CTRL &= ~((0x7) << CLK_SRC_SR); // Clock source : CMU_FXCLK(1) = 6250 kHz
     GTM_TOM0_CH1_CTRL |= (1 << CLK_SRC_SR);
     GTM_TOM0_CH1_SR0 = DUTY100 - 1; // PWM freq. = 6250 kHz / 12500 = 500 Hz
-    GTM_TOM0_CH1_SR1 = DYTY12_5 - 1; // Duty cycle = 100
+    GTM_TOM0_CH1_SR1 = DUTY100 - 1; // Duty cycle = 100
     GTM_TOUTSEL6 &= ~((0x3) << SEL7); // TOUT103 : TOM0 channel 1
 
     // channel 2
@@ -150,7 +151,7 @@ void init_GTM_TOM0_PWM(void)
     GTM_TOM0_CH2_CTRL &= ~((0x7) << CLK_SRC_SR); // Clock source : CMU_FXCLK(1) = 6250 kHz
     GTM_TOM0_CH2_CTRL |= (1 << CLK_SRC_SR);
     GTM_TOM0_CH2_SR0 = DUTY100 - 1; // PWM freq. = 6250 kHz / 12500 = 500 Hz
-    GTM_TOM0_CH2_SR1 = DUTY100 - 1; // Duty cycle = 100
+    GTM_TOM0_CH2_SR1 = DUTY6_25 - 1; // Duty cycle = 100
     GTM_TOUTSEL6 &= ~((0x3) << SEL8); // TOUT104 : TOM0 channel 2
 
     GTM_TOM0_TGC0_GLB_CTRL |= (1 << HOST_TRIG); // Trigger request signal to update

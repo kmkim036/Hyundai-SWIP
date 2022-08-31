@@ -73,10 +73,8 @@ int core0_main(void)
         printf("\n");
         */
 
-        char swap;
         int temp;
         for (int i = 1; i < 16; i++) {
-            swap = 'N';
             for (int j = 0; j < 16 - i; j++) {
                 if (adc_arr[j] > adc_arr[j + 1]) {
                     temp = adc_arr[j];
@@ -84,8 +82,6 @@ int core0_main(void)
                     adc_arr[j + 1] = temp;
                 }
             }
-            if (swap == 'N')
-                break;
         }
 
         /*

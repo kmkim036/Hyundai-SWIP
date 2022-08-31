@@ -38,30 +38,31 @@ int avg;
 int core0_main(void)
 {
     IfxCpu_enableInterrupts();
-    
+
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
      * Enable the watchdogs and service them periodically if it is required
      */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
-    
+
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
-    
+
     unsigned int adcResult;
 
     /* Initialization */
-    init_RGBLED();              // Initialize PORT
-    init_VADC();                // Initialize VADC
-    while(1) {
-        int adc_arr[16] = {0, };
-        for(int i = 0; i < 16; i++)
-        {
+    init_RGBLED(); // Initialize PORT
+    init_VADC(); // Initialize VADC
+
+    while (1) {
+        int adc_arr[16] = {
+            0,
+        };
+
+        for (int i = 0; i < 16; i++) {
             VADC_startConversion();
-
             adcResult = VADC_readResult();
-
             adc_arr[i] = adcResult;
         }
 
@@ -95,7 +96,7 @@ int core0_main(void)
         */
 
         int sum = 0;
-        for(int i = 4; i < 12; i++)
+        for (int i = 4; i < 12; i++)
             sum += adc_arr[i];
 
         avg = sum / 8;
@@ -126,63 +127,69 @@ void init_VADC(void)
     /* VADC Enable */
     /* Password Access to unlock WDTCPU0CON0 */
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) & ~(1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0)
+        ;
 
     /* Modify Access to clear ENDINIT bit */
-    SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) | (1 << LCK)) & ~ (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0);
+    SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) | (1 << LCK)) & ~(1 << ENDINIT);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0)
+        ;
 
-    VADC_CLC &= ~(1 << DISR);                 // Enable VADC Module
+    VADC_CLC &= ~(1 << DISR); // Enable VADC Module
 
     /* Password Access to unlock WDTSCPU0CON0 */
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) & ~(1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) != 0)
+        ;
 
     /* Modify Access to clear ENDINIT bit */
     SCU_WDT_CPU0CON0 = ((SCU_WDT_CPU0CON0 ^ 0xFC) | (1 << LCK)) | (1 << ENDINIT);
-    while((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0);
+    while ((SCU_WDT_CPU0CON0 & (1 << LCK)) == 0)
+        ;
 
-    while((VADC_CLC & (1 << DISS)) != 0);     // Wait until module is enabled
+    while ((VADC_CLC & (1 << DISS)) != 0)
+        ; // Wait until module is enabled
 
-    VADC_G4ARBPR |= ((0x3) << PRIO0);         // Highest Priority for Request Source 0
-    VADC_G4ARBPR &= ~(1 << CSM0);             // Conversion Start Mode : Wait-for-start mode
-    VADC_G4ARBPR |= (1 << ASEN0);             // Arbitration Source Input 0 Enable
+    VADC_G4ARBPR |= ((0x3) << PRIO0); // Highest Priority for Request Source 0
+    VADC_G4ARBPR &= ~(1 << CSM0); // Conversion Start Mode : Wait-for-start mode
+    VADC_G4ARBPR |= (1 << ASEN0); // Arbitration Source Input 0 Enable
 
-    VADC_G4QMR0  &= ~((0x3) << ENGT);         // Enable Conversion Requests
-    VADC_G4QMR0  |= ((0x1) << ENGT);
+    VADC_G4QMR0 &= ~((0x3) << ENGT); // Enable Conversion Requests
+    VADC_G4QMR0 |= ((0x1) << ENGT);
 
-    VADC_G4QMR0  |= (1 << FLUSH);             // Clear all Queue Entries
+    VADC_G4QMR0 |= (1 << FLUSH); // Clear all Queue Entries
 
-    VADC_G4ARBCFG |= ((0x3) << ANONC);        // Analog Converter : Normal Operation
+    VADC_G4ARBCFG |= ((0x3) << ANONC); // Analog Converter : Normal Operation
 
-    VADC_G4ICLASS0 &= ~((0x7) << CMS);        // Group-specific Class 0
-                                              // Conversion Mode : Standard Conversion (12-bit)
+    VADC_G4ICLASS0 &= ~((0x7) << CMS); // Group-specific Class 0
+        // Conversion Mode : Standard Conversion (12-bit)
 
     /* VADC Group 4 Channel 7 Setting */
-    VADC_G4CHCTR7 |= (1 << RESPOS);           // Read Results Right-aligned
-    VADC_G4CHCTR7 &= ~((0xF) << RESREG);      // Store Result in Group Result Register G4RES1
+    VADC_G4CHCTR7 |= (1 << RESPOS); // Read Results Right-aligned
+    VADC_G4CHCTR7 &= ~((0xF) << RESREG); // Store Result in Group Result Register G4RES1
     VADC_G4CHCTR7 |= (1 << RESREG);
-    VADC_G4CHCTR7 &= ~((0x3) << ICLSEL);      // Use Group-specific Class 0
+    VADC_G4CHCTR7 &= ~((0x3) << ICLSEL); // Use Group-specific Class 0
 }
 
 void VADC_startConversion(void)
 {
     /* No fill and Start Queue */
-    VADC_G4QINR0 &= ~(0x1F);                 // Request Channel Number : 7
+    VADC_G4QINR0 &= ~(0x1F); // Request Channel Number : 7
     VADC_G4QINR0 |= (0x07);
 
-    VADC_G4QINR0 &= ~(1 << RF);              // No fill : it is converted once
+    VADC_G4QINR0 &= ~(1 << RF); // No fill : it is converted once
 
-    VADC_G4QMR0 |= (1 << TREV);              // Generate a Trigger Event
+    VADC_G4QMR0 |= (1 << TREV); // Generate a Trigger Event
 }
 
 unsigned int VADC_readResult(void)
 {
     unsigned int result;
 
-    while((VADC_G4RES1 & (1 << VF)) == 0);          // Wait until New Result Available
+    while ((VADC_G4RES1 & (1 << VF)) == 0)
+        ; // Wait until New Result Available
 
-    result = (VADC_G4RES1 & ((0xFFFF) << RESULT));  // Read Result
+    result = (VADC_G4RES1 & ((0xFFFF) << RESULT)); // Read Result
 
     return result;
 }

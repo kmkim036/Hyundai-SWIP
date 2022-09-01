@@ -1,10 +1,13 @@
 // game 1
 while (1) {
     measure light sensor;
-    LED random on;
+    LED random on;  // light sensor % 3 == 0, 1, 2
+    // 0 <= LED1
+    // 1 <= LED2
+    // 2 <= LED1, LED2
     timer start;
     if (timer > 1.5s || uncorrect switch) {
-        //
+        // no action
     } else {
         win_cnt++
     }

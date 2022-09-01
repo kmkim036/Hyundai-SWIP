@@ -1,5 +1,6 @@
 // game 1
 while (1) {
+    measure light sensor;
     LED random on;
     timer start;
     if (timer > 1.5s || uncorrect switch) {
@@ -9,7 +10,7 @@ while (1) {
     }
     switch (win_cnt) {
     case 0:
-        no led;
+        no rgb led;
         break;
     case 1:
         red rgb led;
@@ -60,6 +61,7 @@ timer interrupt
 
 // game 3
 while (1) {
+    measure light sensor;
     random target potentiometer setting;
     while (1) {
         if (potentiometer > target value) {

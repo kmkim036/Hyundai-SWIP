@@ -51,6 +51,8 @@ while (1) {
             }
         }
     }
+    while (1)
+        ;
 }
 
 timer interrupt
@@ -71,5 +73,6 @@ while (1) {
             break;
         }
     }
-    //
+    while (1)
+        ;
 }

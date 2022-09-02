@@ -161,7 +161,7 @@ int core0_main(void)
     init_LED();
     init_Switch();
     volatile int cycle;
-    init_CCU60(void);
+    init_CCU60();
 
     win = 0;
     while (1) {

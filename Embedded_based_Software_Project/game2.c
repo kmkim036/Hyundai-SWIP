@@ -1,27 +1,26 @@
+// ********************************************************** //
+// need to add buzzer code
+
 #include "user_define.h"
-/* Function Prototype */
 
-/* Function Prototype */
-void init_ultrasonic(void);
-void init_ERU(void);
-void init_CCU60(void);
+#define TAG_THREHSHOLD 5
 
-/* Global Variables */
 IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
 volatile unsigned int timer_cnt_ultra;
 volatile unsigned int timer_cnt_mode;
+
 volatile unsigned int start_time;
 volatile unsigned int end_time;
 volatile unsigned int interval_time;
+
+volatile unsigned char irq_ultra_sensor;
+
 int distance;
 int distance_cmp;
 int distance_now;
-volatile unsigned char irq_ultra_sensor;
 
 int tagger = 0;
-
-#define TAG_THREHSHOLD 5
 
 void init_LED(void)
 {
@@ -72,12 +71,9 @@ void init_ERU(void)
 
     SCU_EICR2 &= ~((0x7) << EXIS0); // External input 3 is selected
     SCU_EICR2 |= ((0x3) << EXIS0);
-
     SCU_EICR2 |= (1 << REN0); // Rising edge enable
     SCU_EICR2 |= (1 << FEN0); // Falling edge enable
-
     SCU_EICR2 |= (1 << EIEN0); // The trigger event is enabled
-
     SCU_EICR2 &= ~((0x7) << INP0); // An event from input ETL 4 triggers output OGU 0
 
     SCU_IGCR0 &= ~((0x3) << IGP0); // IOUT(0) is activated in response to a trigger event
@@ -96,9 +92,7 @@ void init_ERU(void)
     /* SRC Interrupt Setting For ECU */
     SRC_SCUERU0 &= ~((0xFF) << SRPN); // Set Priority : 0x0B
     SRC_SCUERU0 |= ((0x0B) << SRPN);
-
     SRC_SCUERU0 &= ~((0x3) << TOS); // CPU0 services
-
     SRC_SCUERU0 |= (1 << SRE); // Service Request is enabled
 }
 
@@ -134,7 +128,6 @@ void init_CCU60(void)
     CCU60_TCTR0 &= ~((0x7) << T12CLK); // f_T12 = f_CCU6 / prescaler
     CCU60_TCTR0 |= (1 << T12CLK); // F_CCU6 = 100 MHz, prescaler = 2
     CCU60_TCTR0 &= ~(1 << T12PRE); // f_T12 = 50 MHz
-
     CCU60_TCTR0 &= ~(1 << CTM); // T12 always counts up and continues counting
         // from zero after reaching the period value
 
@@ -145,15 +138,12 @@ void init_CCU60(void)
 
     /* CCU60 T12 Interrupt Setting */
     CCU60_INP &= ~((0x3) << INPT12); // Service Request output SR0 is selected
-
     CCU60_IEN |= (1 << ENT12PM); // Enable Interrupt for T12 Period-Match
 
     /* SRC Interrupt Setting For CCU60 */
     SRC_CCU60_SR0 &= ~((0xFF) << SRPN); // Set Priority : 0x0A
     SRC_CCU60_SR0 |= ((0x0A) << SRPN);
-
     SRC_CCU60_SR0 &= ~((0x3) << TOS); // CPU0 services
-
     SRC_CCU60_SR0 |= (1 << SRE); // Service Request is enabled
 
     /* CCU60 T12 Start */
@@ -174,14 +164,15 @@ int core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    irq_ultra_sensor = 0;
-
     /* Initialization */
     init_ultrasonic();
     init_ERU();
     init_CCU60();
     init_LED();
     init_RGBLED();
+
+    irq_ultra_sensor = 0;
+
     PORT10_OMR = (1 << PCL2); // LED BLUE OFF
     PORT10_OMR = (1 << PCL1); // LED RED OFF
 
@@ -190,7 +181,6 @@ int core0_main(void)
             PORT02_OMR |= (1 << PCL7); // Clear RGB LED RED
             PORT10_OMR |= (1 << PS5); // Set RGB LED GREEN
             PORT10_OMR |= (1 << PCL3); // Clear RGB LED BLUE
-
             if (distance < TAG_THREHSHOLD && distance != 0) {
                 PORT10_OMR = (1 << PS2); // LED BLUE ON
                 PORT10_OMR = (1 << PCL1); // LED RED OFF
@@ -200,7 +190,6 @@ int core0_main(void)
             PORT02_OMR |= (1 << PS7); // Set LED RED
             PORT10_OMR |= (1 << PCL5); // Clear LED GREEN
             PORT10_OMR |= (1 << PCL3); // Clear LED BLUE
-
             if (distance != 0 && distance_cmp != 0) {
                 distance_now = distance;
                 if (distance_now - distance_cmp > 10 || distance_cmp - distance_now > 10) {
@@ -251,8 +240,8 @@ __interrupt(0x0A) __vector_table(0) void CCU60_T12_ISR(void)
 
 __interrupt(0x0B) __vector_table(0) void ERU0_ISR(void)
 {
-    if ((PORT15_IN & (1 << P5)) == 0) // Falling edge
-    {
+    if ((PORT15_IN & (1 << P5)) == 0) {
+        // Falling edge
         /* Get distance */
         end_time = timer_cnt_ultra;
 
@@ -269,8 +258,8 @@ __interrupt(0x0B) __vector_table(0) void ERU0_ISR(void)
         //distance = ((interval_time/2)*34000)/1000_00;    // cm
         distance = (interval_time * 17) / 100; // cm
         irq_ultra_sensor = 1;
-    } else // Rising edge
-    {
+    } else {
+        // Rising edge
         start_time = timer_cnt_ultra;
     }
 }

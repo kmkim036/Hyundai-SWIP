@@ -1,4 +1,5 @@
 #include "user_define.h"
+/* Function Prototype */
 
 /* Function Prototype */
 void init_ultrasonic(void);
@@ -14,9 +15,9 @@ volatile unsigned int timer_cnt_mode;
 volatile unsigned int start_time;
 volatile unsigned int end_time;
 volatile unsigned int interval_time;
-unsigned int distance;
-unsigned int distance_cmp;
-unsigned int distance_now;
+int distance;
+int distance_cmp;
+int distance_now;
 volatile unsigned char irq_ultra_sensor;
 
 int tagger = 0;
@@ -194,9 +195,7 @@ int core0_main(void)
 
             if(distance != 0 && distance_cmp != 0) {
                 distance_now = distance;
-                  if((distance_cmp - distance_now) > 100) {
-//                if (distance_cmp - distance > 10 || distance - distance_cmp > 10) {
-                    printf("%d %d\n",distance_cmp, distance_now);
+                if ( distance_now - distance_cmp > 10 || distance_cmp - distance_now > 10 ) {
                     PORT10_OMR =(1<<PCL2); // LED BLUE OFF
                     PORT10_OMR =(1<<PS1); // LED RED ON
                     break;
@@ -245,7 +244,6 @@ void CCU60_T12_ISR(void)
             tagger--;
         }
         else {
-            for(int i = 0; i < 5000; i++);  // delay
             distance_cmp = distance;
             tagger++;
         }
@@ -279,4 +277,3 @@ void ERU0_ISR(void)
         start_time = timer_cnt_ultra;
     }
 }
-
